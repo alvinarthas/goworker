@@ -17,7 +17,7 @@ func sqrWorker(tasks <-chan string, results chan<- string, instance int) {
 
 }
 
-func chunkConditions(logs []int, chunkSize int) ([]string, int) {
+func chunkConditions(logs []int, perData int) ([]string, int) {
 
 	var (
 		condition string
@@ -29,7 +29,7 @@ func chunkConditions(logs []int, chunkSize int) ([]string, int) {
 
 		condition += fmt.Sprintf(`Here Number: %d, `, logs[i-1])
 
-		if i%chunkSize == 0 {
+		if i%perData == 0 {
 			condition = strings.TrimSuffix(condition, ", ")
 			devided = append(devided, condition)
 			workers++
@@ -62,25 +62,25 @@ func main() {
 		start   = time.Now()
 	)
 
-	logs := createRandomArrays(500000)
-	fmt.Println(logs)
+	logs := createRandomArrays(250000)
 
 	chunkSize := (len(logs) + perData - 1) / perData
-
-	chunkArray, workers := chunkConditions(logs, chunkSize)
-
-	tasks := make(chan string)
-	results := make(chan string)
+	fmt.Println("chunk: ", chunkSize)
+	chunkArray, workers := chunkConditions(logs, perData)
+	fmt.Println("chunkArray: ", len(chunkArray))
+	panic("here")
+	tasks := make(chan string)   // sender
+	results := make(chan string) // receiver
 
 	// launching workers goroutines
-	for i := 0; i < workers; i++ {
-		go sqrWorker(tasks, results, i)
-	}
+	// for i := 0; i < workers; i++ {
+	// 	go sqrWorker(tasks, results, i)
+	// }
 
-	// passing tasks
-	for _, v := range chunkArray {
-		tasks <- v
-	}
+	// // passing tasks
+	// for _, v := range chunkArray {
+	// 	tasks <- v // read da
+	// }
 
 	fmt.Println("[main] Wrote tasks")
 
